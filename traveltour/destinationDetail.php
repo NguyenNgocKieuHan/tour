@@ -8,7 +8,7 @@ if (isset($_GET['id'])) {
     $destination_id = mysqli_real_escape_string($conn, $_GET['id']);
 
     // Truy vấn thông tin chi tiết của địa điểm
-    $query = "SELECT d.DENAME, d.DEDESCRIPTION, d.IMAGE, c.CITYNAME, q.DISTRICTNAME
+    $query = "SELECT d.DENAME, d.DEDESCRIPTION, d.DEIMAGE, c.CITYNAME, q.DISTRICTNAME
               FROM destination d
               JOIN district q ON d.DISTRICTID = q.DISTRICTID
               JOIN city c ON q.CITYID = c.CITYID
@@ -47,7 +47,7 @@ if (isset($_GET['id'])) {
 <div class="container py-5">
     <div class="row">
         <div class="col-lg-6">
-            <img src="data:image/jpeg;base64,<?php echo base64_encode($row['IMAGE']); ?>"
+            <img src="data:image/jpeg;base64,<?php echo base64_encode($row['DEIMAGE']); ?>"
                 class="img-fluid w-100 rounded mb-4">
             <h6 class="text-blue h4"><?php echo htmlspecialchars($row['DENAME']); ?></h6>
         </div>

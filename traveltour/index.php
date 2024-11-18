@@ -323,7 +323,7 @@ function searchTours() {
                     <div class="row g-4">
                         <?php
                         // Truy vấn tất cả địa điểm
-                        $query = "SELECT DESTINATIONID, DENAME, IMAGE FROM destination";
+                        $query = "SELECT DESTINATIONID, DENAME, DEIMAGE FROM destination";
                         $stmt = $conn->prepare($query);
                         $stmt->execute();
                         $result = $stmt->get_result();
@@ -332,13 +332,13 @@ function searchTours() {
                         while ($row = $result->fetch_assoc()) {
                             echo '<div class="col-xl-4">';
                             echo '<div class="destination-img h-100">';
-                            echo '<img class="img-fluid rounded w-100 h-100" style="object-fit: cover; min-height: 300px;" src="data:image/jpeg;base64,' . base64_encode($row['IMAGE']) . '" alt="Image">';
+                            echo '<img class="img-fluid rounded w-100 h-100" style="object-fit: cover; min-height: 300px;" src="data:image/jpeg;base64,' . base64_encode($row['DEIMAGE']) . '" alt="Image">';
                             echo '<div class="destination-overlay p-4">';
                             echo '<h4 class="text-white mb-2 mt-3">' . htmlspecialchars($row['DENAME']) . '</h4>';
                             echo '<button onclick="window.location.href=\'destinationDetail.php?id=' . $row['DESTINATIONID'] . '\'" class="btn btn-primary">Xem Chi Tiết <i class="fa fa-arrow-right ms-2"></i></button>';
                             echo '</div>';
                             echo '<div class="search-icon">';
-                            echo '<a href="data:image/jpeg;base64,' . base64_encode($row['IMAGE']) . '" data-lightbox="destination-' . htmlspecialchars($row['DESTINATIONID']) . '">';
+                            echo '<a href="data:image/jpeg;base64,' . base64_encode($row['DEIMAGE']) . '" data-lightbox="destination-' . htmlspecialchars($row['DESTINATIONID']) . '">';
                             echo '<i class="fa fa-plus-square fa-1x btn btn-light btn-lg-square text-primary"></i>';
                             echo '</a>';
                             echo '</div>';
@@ -355,7 +355,7 @@ function searchTours() {
                     <div class="row g-4">
                         <?php
                         // Truy vấn các địa điểm Cái Răng dựa trên DISTRICTID
-                        $query = "SELECT DESTINATIONID, DENAME, IMAGE FROM destination WHERE DISTRICTID = ?";
+                        $query = "SELECT DESTINATIONID, DENAME, DEIMAGE FROM destination WHERE DISTRICTID = ?";
                         $stmt = $conn->prepare($query);
                         $districtId = 2; // DISTRICTID của Cái Răng
                         $stmt->bind_param("i", $districtId);
@@ -365,13 +365,13 @@ function searchTours() {
                         while ($row = $result->fetch_assoc()) {
                             echo '<div class="col-xl-4">';
                             echo '<div class="destination-img h-100">';
-                            echo '<img class="img-fluid rounded w-100 h-100" style="object-fit: cover; min-height: 300px;" src="data:image/jpeg;base64,' . base64_encode($row['IMAGE']) . '" alt="Image">';
+                            echo '<img class="img-fluid rounded w-100 h-100" style="object-fit: cover; min-height: 300px;" src="data:image/jpeg;base64,' . base64_encode($row['DEIMAGE']) . '" alt="Image">';
                             echo '<div class="destination-overlay p-4">';
                             echo '<h4 class="text-white mb-2 mt-3">' . htmlspecialchars($row['DENAME']) . '</h4>';
                             echo '<button onclick="window.location.href=\'destinationDetail.php?id=' . $row['DESTINATIONID'] . '\'" class="btn btn-primary">Xem Chi Tiết <i class="fa fa-arrow-right ms-2"></i></button>';
                             echo '</div>';
                             echo '<div class="search-icon">';
-                            echo '<a href="data:image/jpeg;base64,' . base64_encode($row['IMAGE']) . '" data-lightbox="destination-' . htmlspecialchars($row['DESTINATIONID']) . '">';
+                            echo '<a href="data:image/jpeg;base64,' . base64_encode($row['DEIMAGE']) . '" data-lightbox="destination-' . htmlspecialchars($row['DESTINATIONID']) . '">';
                             echo '<i class="fa fa-plus-square fa-1x btn btn-light btn-lg-square text-primary"></i>';
                             echo '</a>';
                             echo '</div>';
@@ -387,7 +387,7 @@ function searchTours() {
                     <div class="row g-4">
                         <?php
                         // Truy vấn các địa điểm Ninh Kiều dựa trên DISTRICTID
-                        $query = "SELECT DESTINATIONID, DENAME, IMAGE FROM destination WHERE DISTRICTID = ?";
+                        $query = "SELECT DESTINATIONID, DENAME, DEIMAGE FROM destination WHERE DISTRICTID = ?";
                         $stmt = $conn->prepare($query);
                         $districtId = 1; // DISTRICTID của Ninh Kiều
                         $stmt->bind_param("i", $districtId);
@@ -397,13 +397,13 @@ function searchTours() {
                         while ($row = $result->fetch_assoc()) {
                             echo '<div class="col-xl-4">';
                             echo '<div class="destination-img h-100">';
-                            echo '<img class="img-fluid rounded w-100 h-100" style="object-fit: cover; min-height: 300px;" src="data:image/jpeg;base64,' . base64_encode($row['IMAGE']) . '" alt="Image">';
+                            echo '<img class="img-fluid rounded w-100 h-100" style="object-fit: cover; min-height: 300px;" src="data:image/jpeg;base64,' . base64_encode($row['DEIMAGE']) . '" alt="Image">';
                             echo '<div class="destination-overlay p-4">';
                             echo '<h4 class="text-white mb-2 mt-3">' . htmlspecialchars($row['DENAME']) . '</h4>';
                             echo '<button onclick="window.location.href=\'destinationDetail.php?id=' . $row['DESTINATIONID'] . '\'" class="btn btn-primary">Xem Chi Tiết <i class="fa fa-arrow-right ms-2"></i></button>';
                             echo '</div>';
                             echo '<div class="search-icon">';
-                            echo '<a href="data:image/jpeg;base64,' . base64_encode($row['IMAGE']) . '" data-lightbox="destination-' . htmlspecialchars($row['DESTINATIONID']) . '">';
+                            echo '<a href="data:image/jpeg;base64,' . base64_encode($row['DEIMAGE']) . '" data-lightbox="destination-' . htmlspecialchars($row['DESTINATIONID']) . '">';
                             echo '<i class="fa fa-plus-square fa-1x btn btn-light btn-lg-square text-primary"></i>';
                             echo '</a>';
                             echo '</div>';
@@ -418,7 +418,7 @@ function searchTours() {
                     <div class="row g-4">
                         <?php
                         // Truy vấn các địa điểm Phong Điền dựa trên DISTRICTID
-                        $query = "SELECT DESTINATIONID, DENAME, IMAGE FROM destination WHERE DISTRICTID = ?";
+                        $query = "SELECT DESTINATIONID, DENAME, DEIMAGE FROM destination WHERE DISTRICTID = ?";
                         $stmt = $conn->prepare($query);
                         $districtId = 3; // DISTRICTID của Phong Điền
                         $stmt->bind_param("i", $districtId);
@@ -428,13 +428,13 @@ function searchTours() {
                         while ($row = $result->fetch_assoc()) {
                             echo '<div class="col-xl-4">';
                             echo '<div class="destination-img h-100">';
-                            echo '<img class="img-fluid rounded w-100 h-100" style="object-fit: cover; min-height: 300px;" src="data:image/jpeg;base64,' . base64_encode($row['IMAGE']) . '" alt="Image">';
+                            echo '<img class="img-fluid rounded w-100 h-100" style="object-fit: cover; min-height: 300px;" src="data:image/jpeg;base64,' . base64_encode($row['DEIMAGE']) . '" alt="Image">';
                             echo '<div class="destination-overlay p-4">';
                             echo '<h4 class="text-white mb-2 mt-3">' . htmlspecialchars($row['DENAME']) . '</h4>';
                             echo '<button onclick="window.location.href=\'destinationDetail.php?id=' . $row['DESTINATIONID'] . '\'" class="btn btn-primary">Xem Chi Tiết <i class="fa fa-arrow-right ms-2"></i></button>';
                             echo '</div>';
                             echo '<div class="search-icon">';
-                            echo '<a href="data:image/jpeg;base64,' . base64_encode($row['IMAGE']) . '" data-lightbox="destination-' . htmlspecialchars($row['DESTINATIONID']) . '">';
+                            echo '<a href="data:image/jpeg;base64,' . base64_encode($row['DEIMAGE']) . '" data-lightbox="destination-' . htmlspecialchars($row['DESTINATIONID']) . '">';
                             echo '<i class="fa fa-plus-square fa-1x btn btn-light btn-lg-square text-primary"></i>';
                             echo '</a>';
                             echo '</div>';
@@ -450,7 +450,7 @@ function searchTours() {
                     <div class="row g-4">
                         <?php
                         // Truy vấn các địa điểm Thốt Nốt dựa trên DISTRICTID
-                        $query = "SELECT DESTINATIONID, DENAME, IMAGE FROM destination WHERE DISTRICTID = ?";
+                        $query = "SELECT DESTINATIONID, DENAME, DEIMAGE FROM destination WHERE DISTRICTID = ?";
                         $stmt = $conn->prepare($query);
                         $districtId = 4; // DISTRICTID của Thốt Nốt
                         $stmt->bind_param("i", $districtId);
@@ -460,13 +460,13 @@ function searchTours() {
                         while ($row = $result->fetch_assoc()) {
                             echo '<div class="col-xl-4">';
                             echo '<div class="destination-img h-100">';
-                            echo '<img class="img-fluid rounded w-100 h-100" style="object-fit: cover; min-height: 300px;" src="data:image/jpeg;base64,' . base64_encode($row['IMAGE']) . '" alt="Image">';
+                            echo '<img class="img-fluid rounded w-100 h-100" style="object-fit: cover; min-height: 300px;" src="data:image/jpeg;base64,' . base64_encode($row['DEIMAGE']) . '" alt="Image">';
                             echo '<div class="destination-overlay p-4">';
                             echo '<h4 class="text-white mb-2 mt-3">' . htmlspecialchars($row['DENAME']) . '</h4>';
                             echo '<button onclick="window.location.href=\'destinationDetail.php?id=' . $row['DESTINATIONID'] . '\'" class="btn btn-primary">Xem Chi Tiết <i class="fa fa-arrow-right ms-2"></i></button>';
                             echo '</div>';
                             echo '<div class="search-icon">';
-                            echo '<a href="data:image/jpeg;base64,' . base64_encode($row['IMAGE']) . '" data-lightbox="destination-' . htmlspecialchars($row['DESTINATIONID']) . '">';
+                            echo '<a href="data:image/jpeg;base64,' . base64_encode($row['DEIMAGE']) . '" data-lightbox="destination-' . htmlspecialchars($row['DESTINATIONID']) . '">';
                             echo '<i class="fa fa-plus-square fa-1x btn btn-light btn-lg-square text-primary"></i>';
                             echo '</a>';
                             echo '</div>';
@@ -482,7 +482,7 @@ function searchTours() {
                     <div class="row g-4">
                         <?php
                         // Truy vấn các địa điểm Bình Thủy dựa trên DISTRICTID
-                        $query = "SELECT DESTINATIONID, DENAME, IMAGE FROM destination WHERE DISTRICTID = ?";
+                        $query = "SELECT DESTINATIONID, DENAME, DEIMAGE FROM destination WHERE DISTRICTID = ?";
                         $stmt = $conn->prepare($query);
                         $districtId = 5; // DISTRICTID của Bình Thủy
                         $stmt->bind_param("i", $districtId);
@@ -492,13 +492,13 @@ function searchTours() {
                         while ($row = $result->fetch_assoc()) {
                             echo '<div class="col-xl-4">';
                             echo '<div class="destination-img h-100">';
-                            echo '<img class="img-fluid rounded w-100 h-100" style="object-fit: cover; min-height: 300px;" src="data:image/jpeg;base64,' . base64_encode($row['IMAGE']) . '" alt="Image">';
+                            echo '<img class="img-fluid rounded w-100 h-100" style="object-fit: cover; min-height: 300px;" src="data:image/jpeg;base64,' . base64_encode($row['DEIMAGE']) . '" alt="Image">';
                             echo '<div class="destination-overlay p-4">';
                             echo '<h4 class="text-white mb-2 mt-3">' . htmlspecialchars($row['DENAME']) . '</h4>';
                             echo '<button onclick="window.location.href=\'destinationDetail.php?id=' . $row['DESTINATIONID'] . '\'" class="btn btn-primary">Xem Chi Tiết <i class="fa fa-arrow-right ms-2"></i></button>';
                             echo '</div>';
                             echo '<div class="search-icon">';
-                            echo '<a href="data:image/jpeg;base64,' . base64_encode($row['IMAGE']) . '" data-lightbox="destination-' . htmlspecialchars($row['DESTINATIONID']) . '">';
+                            echo '<a href="data:image/jpeg;base64,' . base64_encode($row['DEIMAGE']) . '" data-lightbox="destination-' . htmlspecialchars($row['DESTINATIONID']) . '">';
                             echo '<i class="fa fa-plus-square fa-1x btn btn-light btn-lg-square text-primary"></i>';
                             echo '</a>';
                             echo '</div>';
@@ -553,7 +553,7 @@ $result = $conn->query($query);
                             while ($row = $result->fetch_assoc()) {
                                 echo '<div class="col-md-6 col-lg-6">';
                                 echo '<div class="national-item">';
-                                echo '<img src="img/explore-tour-1.jpg" class="img-fluid w-100 rounded" alt="Image">';
+                                echo '<img src="../admin/uploads/tour1.jpg" class="img-fluid w-100 rounded" alt="Image">';
                                 echo '<div class="national-content">';
                                 echo '<div class="national-info">';
                                 echo '<h5 class="text-white text-uppercase mb-2">' . htmlspecialchars($row['TOURTYPENAME']) . '</h5>';

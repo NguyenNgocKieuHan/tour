@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $next_id = $row['max_id'] + 1; // ID kế tiếp
 
     // Chèn dữ liệu vào cơ sở dữ liệu
-    $sql = "INSERT INTO destination (DESTINATIONID, DISTRICTID, TOURID, DENAME, DEDESCRIPTION, IMAGE) 
+    $sql = "INSERT INTO destination (DESTINATIONID, DISTRICTID, TOURID, DENAME, DEDESCRIPTION, DEIMAGE) 
             VALUES (?, ?, ?, ?, ?, ?)";
 
     $stmt = mysqli_prepare($conn, $sql);

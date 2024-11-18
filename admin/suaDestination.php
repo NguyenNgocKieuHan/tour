@@ -46,12 +46,12 @@ if (isset($_GET['id'])) {
             }
         } else {
             // Nếu không có ảnh mới, giữ ảnh cũ
-            $imageData = $destination['IMAGE'];
+            $imageData = $destination['DEIMAGE'];
         }
 
         if ($imageData !== null) {
             // Cập nhật dữ liệu vào cơ sở dữ liệu
-            $query = "UPDATE destination SET DISTRICTID = ?, TOURID = ?, DENAME = ?, IMAGE = ? WHERE DESTINATIONID = ?";
+            $query = "UPDATE destination SET DISTRICTID = ?, TOURID = ?, DENAME = ?, DEIMAGE = ? WHERE DESTINATIONID = ?";
             $stmt = mysqli_prepare($conn, $query);
             mysqli_stmt_bind_param($stmt, 'iissi', $districtID, $tourID, $destinationName, $imageData, $destinationID);
 

@@ -38,7 +38,8 @@ if (isset($_GET['id'])) {
         <div class="min-height-200px">
             <div class="pd-20 card-box mb-30">
                 <h4 class="text-blue h4">Sửa Địa Điểm</h4>
-                <form action="suaDestination.php?id=<?php echo $destinationID; ?>" method="post" enctype="multipart/form-data">
+                <form action="suaDestination.php?id=<?php echo $destinationID; ?>" method="post"
+                    enctype="multipart/form-data">
                     <div class="form-group">
                         <label for="district_id">Quận huyện:</label>
                         <select name="district_id" id="district_id" class="form-control" required>
@@ -56,11 +57,13 @@ if (isset($_GET['id'])) {
                     </div>
                     <div class="form-group">
                         <label for="destination_name">Tên địa điểm:</label>
-                        <input type="text" name="destination_name" id="destination_name" class="form-control" value="<?php echo htmlspecialchars($destination['DENAME']); ?>" required>
+                        <input type="text" name="destination_name" id="destination_name" class="form-control"
+                            value="<?php echo htmlspecialchars($destination['DENAME']); ?>" required>
                     </div>
                     <div class="form-group">
                         <label for="description">Mô tả:</label>
-                        <textarea name="description" id="description" class="form-control" required><?php echo htmlspecialchars($destination['DEDESCRIPTION']); ?></textarea>
+                        <textarea name="description" id="description" class="form-control"
+                            required><?php echo htmlspecialchars($destination['DEDESCRIPTION']); ?></textarea>
                     </div>
                     <div class="form-group">
                         <label for="tour_id">Có trong Tour:</label>
@@ -82,8 +85,9 @@ if (isset($_GET['id'])) {
                         <label for="image">Chọn ảnh:</label>
                         <input type="file" name="image" id="image" class="form-control" accept="image/*">
                         <div id="image_preview" class="mt-3">
-                            <?php if (!empty($destination['IMAGE'])): ?>
-                                <img src="data:image/jpeg;base64,<?php echo base64_encode($destination['IMAGE']); ?>" alt="Image Preview" style="max-width: 100%; height: auto;">
+                            <?php if (!empty($destination['DEIMAGE'])): ?>
+                            <img src="data:image/jpeg;base64,<?php echo base64_encode($destination['DEIMAGE']); ?>"
+                                alt="Image Preview" style="max-width: 100%; height: auto;">
                             <?php endif; ?>
                         </div>
                     </div>
@@ -100,17 +104,18 @@ if (isset($_GET['id'])) {
 <script src="vendors/scripts/layout-settings.js"></script>
 
 <script>
-    document.getElementById('image').addEventListener('change', function(event) {
-        const file = event.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const imagePreview = document.getElementById('image_preview');
-                imagePreview.innerHTML = `<img src="${e.target.result}" alt="Image Preview" style="max-width: 100%; height: auto;">`;
-            }
-            reader.readAsDataURL(file);
+document.getElementById('image').addEventListener('change', function(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const imagePreview = document.getElementById('image_preview');
+            imagePreview.innerHTML =
+                `<img src="${e.target.result}" alt="Image Preview" style="max-width: 100%; height: auto;">`;
         }
-    });
+        reader.readAsDataURL(file);
+    }
+});
 </script>
 </body>
 

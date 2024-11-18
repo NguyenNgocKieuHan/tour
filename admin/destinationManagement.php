@@ -22,7 +22,8 @@ if (!isset($_SESSION['ADID'])) {
                         <h4 class="text-blue h4">Quản lý Địa Điểm</h4>
                     </div>
                     <div class="pull-right">
-                        <a href="addDestination.php" class="btn btn-primary btn-sm"><i class="fa fa-plus"></i> Thêm Địa Điểm</a>
+                        <a href="addDestination.php" class="btn btn-primary btn-sm"><i class="fa fa-plus"></i> Thêm Địa
+                            Điểm</a>
                     </div>
                 </div>
                 <table class="table table-striped">
@@ -39,7 +40,7 @@ if (!isset($_SESSION['ADID'])) {
                     <tbody>
                         <?php
                         // Truy vấn và sắp xếp kết quả theo DESTINATIONID từ lớn đến nhỏ
-                        $query = "SELECT d.DESTINATIONID, c.CITYNAME, q.DISTRICTNAME, d.DENAME, d.IMAGE
+                        $query = "SELECT d.DESTINATIONID, c.CITYNAME, q.DISTRICTNAME, d.DENAME, d.DEIMAGE
                                   FROM DESTINATION d
                                   JOIN DISTRICT q ON d.DISTRICTID = q.DISTRICTID
                                   JOIN CITY c ON q.CITYID = c.CITYID
@@ -60,7 +61,7 @@ if (!isset($_SESSION['ADID'])) {
                                 echo "<td>" . htmlspecialchars($row['CITYNAME']) . "</td>";
                                 echo "<td>" . htmlspecialchars($row['DISTRICTNAME']) . "</td>";
                                 echo "<td>" . htmlspecialchars($row['DENAME']) . "</td>";
-                                echo "<td><img src='data:image/jpeg;base64," . base64_encode($row['IMAGE']) . "' alt='Ảnh' style='width: 100px;'></td>";
+                                echo "<td><img src='data:image/jpeg;base64," . base64_encode($row['DEIMAGE']) . "' alt='Ảnh' style='width: 100px;'></td>";
                                 echo "<td>
                                         <a href='editDestination.php?id=" . $row['DESTINATIONID'] . "' class='btn btn-info btn-sm'><i class='fa fa-edit'></i> Sửa</a>
                                         <a href='deleteDestination.php?id=" . $row['DESTINATIONID'] . "' class='btn btn-danger btn-sm' onclick='return confirm(\"Bạn có chắc chắn muốn xóa không?\");'><i class='fa fa-trash'></i> Xóa</a>

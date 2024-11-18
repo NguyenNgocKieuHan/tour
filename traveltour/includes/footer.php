@@ -10,10 +10,14 @@
                     <a href="" class="mb-3"><i class="fas fa-print me-2"></i> +012 345 67890</a>
                     <div class="d-flex align-items-center">
                         <i class="fas fa-share fa-2x text-white me-2"></i>
-                        <a class="btn-square btn btn-primary rounded-circle mx-1" href=""><i class="fab fa-facebook-f"></i></a>
-                        <a class="btn-square btn btn-primary rounded-circle mx-1" href=""><i class="fab fa-twitter"></i></a>
-                        <a class="btn-square btn btn-primary rounded-circle mx-1" href=""><i class="fab fa-instagram"></i></a>
-                        <a class="btn-square btn btn-primary rounded-circle mx-1" href=""><i class="fab fa-linkedin-in"></i></a>
+                        <a class="btn-square btn btn-primary rounded-circle mx-1" href=""><i
+                                class="fab fa-facebook-f"></i></a>
+                        <a class="btn-square btn btn-primary rounded-circle mx-1" href=""><i
+                                class="fab fa-twitter"></i></a>
+                        <a class="btn-square btn btn-primary rounded-circle mx-1" href=""><i
+                                class="fab fa-instagram"></i></a>
+                        <a class="btn-square btn btn-primary rounded-circle mx-1" href=""><i
+                                class="fab fa-linkedin-in"></i></a>
                     </div>
                 </div>
             </div>
@@ -85,31 +89,7 @@
     </div>
 </div>
 <!-- Chatbot Integration -->
-<script>
-    (function() {
-        window.rasaWebchatInit = function() {
-            window.WebChat.default.init({
-                selector: "#webchat",
-                initPayload: "/get_started",
-                interval: 1000,
-                customData: {
-                    "language": "vi"
-                },
-                socketUrl: "http://localhost:5005",
-                title: "Chat với chúng tôi",
-                subtitle: "Tư vấn tour du lịch",
-                inputTextFieldHint: "Nhập câu hỏi...",
-                profileAvatar: "URL hình ảnh đại diện chatbot",
-                showMessageDate: true,
-                params: {
-                    storage: "session"
-                }
-            });
-        };
-        var script = document.createElement('script');
-        script.src = "https://cdn.jsdelivr.net/npm/rasa-webchat/lib/index.js";
-        document.head.appendChild(script);
-    })();
-</script>
-<div id="webchat"></div>
+<script src="https://www.gstatic.com/dialogflow-console/fast/messenger/bootstrap.js?v=1"></script>
+<df-messenger intent="WELCOME" chat-title="tourchat" agent-id="28604165-334f-45e6-ad62-e6ce3d995f81" language-code="vi">
+</df-messenger>
 <!-- End Chatbot -->
