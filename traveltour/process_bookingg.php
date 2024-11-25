@@ -83,7 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         if ($stmt->execute()) {
             // Thêm vào bảng payments
-            $sqlInsertPayment = "INSERT INTO payments (TOURID, USERID, STARTDATE, PAYMENTDATE, AMOUNT, PAYMENTMETHOD) 
+            $sqlInsertPayment = "INSERT INTO payments (TOURID, USERID, STARTDATE, PAYMENT_DATE, AMOUNT, PAYMENT_METHOD) 
                         VALUES (?, ?, ?, NOW(), ?, ?)";
             $payment_stmt = $conn->prepare($sqlInsertPayment);
             $payment_stmt->bind_param("iisss", $tourid, $userid, $startdate, $total_price, $payment_method);

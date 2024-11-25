@@ -49,17 +49,19 @@ if (isset($_GET['tourid'])) {
     <div class="row">
         <div class="col-lg-6">
             <div class="packages-price py-2 px-4">
-                <h6><i class="fa fa-map-marker me-2"></i> GIÁ: <?php echo number_format($price, 0, ',', '.'); ?> VNĐ</h6>
+                <h6><i class="fa fa-map-marker me-2"></i> GIÁ: <?php echo number_format($price, 0, ',', '.'); ?> VNĐ
+                </h6>
             </div>
 
             <div class="packages-price py-2 px-4">
                 <h6><i class="fa fa-calendar-alt me-2"></i>DIỄN RA: <?php echo $time . ' Ngày'; ?></h6>
             </div>
 
-            <img src="data:image/jpeg;base64,<?php echo $imageData; ?>" class="img-fluid w-100 rounded mb-4" alt="<?php echo $tourName; ?>">
-
+            <img src="data:image/jpeg;base64,<?php echo $imageData; ?>" class="img-fluid w-100 rounded mb-4"
+                alt="<?php echo $tourName; ?>">
             <div class="d-flex justify-content-end">
-                <a href="booking.php?tourid=<?php echo $tourId; ?>&tourname=<?php echo urlencode($tourName); ?>&price=<?php echo $price; ?>" class="btn btn-primary">Book Now</a>
+                <a href="booking.php?tourid=<?php echo $tourId; ?>&tourname=<?php echo urlencode($tourName); ?>&price=<?php echo $price; ?>"
+                    class="btn btn-primary">Đặt ngay</a>
             </div>
 
         </div>

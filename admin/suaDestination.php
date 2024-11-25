@@ -26,6 +26,7 @@ if (isset($_GET['id'])) {
         // Lấy dữ liệu từ form
         $districtID = mysqli_real_escape_string($conn, $_POST['district_id']);
         $destinationName = mysqli_real_escape_string($conn, $_POST['destination_name']);
+        $description = mysqli_real_escape_string($conn, $_POST['description']); // Lấy mô tả từ form
         $tourID = mysqli_real_escape_string($conn, $_POST['tour_id']);
         $imageData = null;
 
@@ -37,10 +38,13 @@ if (isset($_GET['id'])) {
             $check = getimagesize($_FILES['image']['tmp_name']);
             if ($check === false) {
                 echo "<script>alert('File không phải là ảnh.');window.location.href='destinationManagement.php';</script>";
+                exit();
             } elseif ($_FILES['image']['size'] > 5000000) {
                 echo "<script>alert('Kích thước ảnh quá lớn.');window.location.href='destinationManagement.php';</script>";
+                exit();
             } elseif (!in_array($imageFileType, $allowedTypes)) {
                 echo "<script>alert('Chỉ cho phép các định dạng JPG, JPEG, PNG & GIF.');window.location.href='destinationManagement.php';</script>";
+                exit();
             } else {
                 $imageData = file_get_contents($_FILES['image']['tmp_name']);
             }
@@ -51,9 +55,9 @@ if (isset($_GET['id'])) {
 
         if ($imageData !== null) {
             // Cập nhật dữ liệu vào cơ sở dữ liệu
-            $query = "UPDATE destination SET DISTRICTID = ?, TOURID = ?, DENAME = ?, DEIMAGE = ? WHERE DESTINATIONID = ?";
+            $query = "UPDATE destination SET DISTRICTID = ?, TOURID = ?, DENAME = ?, DEDESCRIPTION = ?, DEIMAGE = ? WHERE DESTINATIONID = ?";
             $stmt = mysqli_prepare($conn, $query);
-            mysqli_stmt_bind_param($stmt, 'iissi', $districtID, $tourID, $destinationName, $imageData, $destinationID);
+            mysqli_stmt_bind_param($stmt, 'iisssi', $districtID, $tourID, $destinationName, $description, $imageData, $destinationID);
 
             if (mysqli_stmt_execute($stmt)) {
                 echo "<script>alert('Địa điểm đã được cập nhật thành công!'); window.location.href='destinationManagement.php';</script>";

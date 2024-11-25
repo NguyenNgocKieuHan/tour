@@ -22,8 +22,18 @@ if (isset($_GET['id'])) {
     // Kiểm tra có địa điểm không
     if ($result->num_rows > 0) {
         $row = $result->fetch_assoc();
-    } else {
-        echo "<p>Không tìm thấy địa điểm nào.</p>";
+    } else { ?>
+        <div class="container-fluid bg-breadcrumb">
+            <div class="container text-center py-5" style="max-width: 900px;">
+                <h3 class="text-white display-3 mb-4">Điểm đến du lịch</h3>
+                <ol class="breadcrumb justify-content-center mb-0">
+                    <li class="breadcrumb-item"><a href="index.php">Trang chủ</a></li>
+                    <li class="breadcrumb-item"><a href="#">Trang</a></li>
+                    <li class="breadcrumb-item active text-white">Điểm đến</li>
+                </ol>
+            </div>
+        </div>
+<?php echo "<p>Không tìm thấy địa điểm nào.</p>";
         exit;
     }
 } else {

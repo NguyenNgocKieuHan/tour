@@ -1,171 +1,157 @@
 <?php
 session_start();
-include('includes/db.php');
-require '../vendor/autoload.php'; // Thêm PayPal SDK
-use PayPal\Rest\ApiContext;
-use PayPal\Auth\OAuthTokenCredential;
-use PayPal\Api\Amount;
-use PayPal\Api\Payer;
-use PayPal\Api\Payment;
-use PayPal\Api\RedirectUrls;
-use PayPal\Api\Transaction;
 
-date_default_timezone_set('Asia/Ho_Chi_Minh');
-
-// Kiểm tra người dùng đã đăng nhập hay chưa
 if (!isset($_SESSION['userid'])) {
-    echo "<script>alert('Bạn chưa đăng nhập!'); window.location.href='login.php';</script>";
+    echo "<script>
+    alert('Bạn chưa đăng nhập!');
+    window.location.href = 'login.php';
+    </script>";
     exit();
 }
 
-// Hàm để chuyển đổi VNĐ sang USD
-function convertVNDToUSD($amountVND)
-{
-    $exchangeRate = 23000; // Tỉ giá chuyển đổi (1 USD = 23000 VNĐ)
-    return $amountVND / $exchangeRate;
-}
+include('includes/db.php');
 
-// Lấy dữ liệu từ form đặt tour
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $tourID = $_POST['tourid'];
-    $userID = $_SESSION['userid'];
-    $numOfPeople = $_POST['people_count'];
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $tourId = intval($_POST['tourid']);
+    $userId = $_SESSION['userid'];
     $startDate = $_POST['startdate'];
-    $paymentMethod = $_POST['payment_method']; // Phương thức thanh toán người dùng chọn
-    $currentDate = date("Y-m-d");
+    $peopleCount = intval($_POST['people_count']);
+    $paymentMethod = htmlspecialchars($_POST['payment_method']);
 
-    // Kiểm tra ngày khởi hành
-    if (strtotime($startDate) < strtotime($currentDate)) {
-        echo "<script>alert('Ngày khởi hành không hợp lệ.'); window.location.href='bookingg.php';</script>";
+
+    $status = ($paymentMethod === "PayPal") ? "1" : "2";  // 1 nếu đã thanh toán, 2 nếu đang chờ duyệt
+    // Đặt múi giờ mặc định trong PHP (nếu chưa cấu hình)
+    date_default_timezone_set('Asia/Ho_Chi_Minh');
+
+    // Sau đó sử dụng `date()` hoặc `DateTime` như bình thường
+    $bookingDate = date('Y-m-d H:i:s'); // Hoặc
+    $dateTime = new DateTime();
+    $bookingDate = $dateTime->format('Y-m-d H:i:s');
+
+    if (!$tourId || !$userId || !$startDate || $peopleCount < 1) {
+        echo "<script>
+        alert('Dữ liệu không hợp lệ!');
+        window.location.href = 'tour_booking.php?tourid=$tourId';
+        </script>";
         exit();
     }
 
-    // Kiểm tra xem có bản ghi trùng lặp cho tour vào cùng một ngày khởi hành
-    $sqlCheckDuplicate = "SELECT * FROM bookings WHERE TOURID = ? AND STARTDATE = ? AND USERID = ?";
-    $stmt = $conn->prepare($sqlCheckDuplicate);
-    $stmt->bind_param("isi", $tourID, $startDate, $userID);
-    $stmt->execute();
-    $stmt->store_result();
+    // Lấy thông tin tour
+    $queryTour = "SELECT TOURNAME, PRICE, MAXSLOTS FROM tour WHERE TOURID = ?";
+    $stmtTour = $conn->prepare($queryTour);
+    $stmtTour->bind_param("i", $tourId);
+    $stmtTour->execute();
+    $resultTour = $stmtTour->get_result();
+    $tourData = $resultTour->fetch_assoc();
 
-    if ($stmt->num_rows > 0) {
-        // Nếu có bản ghi trùng lặp cho tour vào cùng một ngày khởi hành
-        echo "<script>alert('Tour này đã được đặt vào ngày đó. Vui lòng kiểm tra thông tin đặt tour của bạn.'); window.location.href='bookingg.php';</script>";
+    if (!$tourData) {
+        echo "<script>
+        alert('Không tìm thấy thông tin tour!');
+        window.location.href = 'index.php';
+        </script>";
         exit();
     }
 
-    // Lấy thông tin tour (giá và số chỗ tối đa)
-    $sqlMaxSlots = "SELECT MAXSLOTS, PRICE FROM tour WHERE TOURID = ?";
-    $stmt = $conn->prepare($sqlMaxSlots);
-    $stmt->bind_param("i", $tourID);
-    $stmt->execute();
-    $stmt->bind_result($maxSlots, $tourPrice);
-    $stmt->fetch();
-    $stmt->close();
+    $tourName = $tourData['TOURNAME'];
+    $pricePerPerson = $tourData['PRICE'];
+    $totalPrice = $pricePerPerson * $peopleCount;
+    $totalSeats = $tourData['MAXSLOTS'];  // Số ghế tối đa cho tour
 
-    // Kiểm tra số người đặt không vượt quá slot
-    if ($numOfPeople <= 0 || $numOfPeople > $maxSlots) {
-        echo "<script>alert('Số lượng người đặt không hợp lệ.'); window.location.href='bookingg.php';</script>";
+    // Kiểm tra số lượng khách hiện tại đã đặt cho tour vào ngày xuất phát
+    $queryBookedSeats = "
+        SELECT SUM(NUMOFPEOPLE) AS bookedSeats
+        FROM bookings
+        WHERE TOURID = ? AND STARTDATE = ?";
+    $stmtBookedSeats = $conn->prepare($queryBookedSeats);
+    $stmtBookedSeats->bind_param("is", $tourId, $startDate);
+    $stmtBookedSeats->execute();
+    $resultBookedSeats = $stmtBookedSeats->get_result();
+    $bookedSeats = $resultBookedSeats->fetch_assoc()['bookedSeats'];
+
+    // Kiểm tra xem số ghế còn lại có đủ cho khách hàng không
+    $availableSeats = $totalSeats - ($bookedSeats ? $bookedSeats : 0);
+
+    if ($peopleCount > $availableSeats) {
+        echo "<script>
+        alert('Số lượng ghế không đủ! Còn $availableSeats ghế cho tour này.');
+        window.location.href = 'booking.php?tourid=$tourId';
+        </script>";
         exit();
     }
 
-    // Lấy tổng số người đã đặt
-    $sqlTotalPeople = "SELECT COALESCE(SUM(NUMOFPEOPLE), 0) AS totalPeople FROM bookings WHERE TOURID = ? AND STATUS = '1'";
-    $stmt = $conn->prepare($sqlTotalPeople);
-    $stmt->bind_param("i", $tourID);
-    $stmt->execute();
-    $stmt->bind_result($totalPeople);
-    $stmt->fetch();
-    $stmt->close();
+    // Kiểm tra xem người dùng đã đặt tour vào ngày này chưa
+    $queryExistingBooking = "SELECT * FROM bookings WHERE USERID = ? AND TOURID = ? AND STARTDATE = ?";
+    $stmtExistingBooking = $conn->prepare($queryExistingBooking);
+    $stmtExistingBooking->bind_param("iis", $userId, $tourId, $startDate);
+    $stmtExistingBooking->execute();
+    $resultExistingBooking = $stmtExistingBooking->get_result();
 
-    if (($totalPeople + $numOfPeople) <= $maxSlots) {
-        // Nếu người dùng chọn phương thức thanh toán là PayPal
-        if ($paymentMethod == 'PayPal') {
-            // Khởi tạo API context cho PayPal
-            $apiContext = new ApiContext(
-                new OAuthTokenCredential(
-                    'AWHNWa7HF-1xlxrHPlD7RDudvOmxkJ5nBzUxEFiqEyHaLN-L5Zmdl8nF9YzRojlPXG4ipg0r5hub4AGB', // Client ID
-                    'EFq7k_UIWZStI__pB-z61IqhXyhWyFtkTHx6mPfE3MA-iapI47i0jYDiXfWLb-66wSRKUY-MaDuH-YcU' // Client Secret
-                )
-            );
+    if ($resultExistingBooking->num_rows > 0) {
+        echo "<script>
+        alert('Bạn đã đặt tour này vào ngày $startDate. Vui lòng chọn ngày khác.');
+        window.location.href = 'booking.php?tourid=$tourId';
+        </script>";
+        exit();
+    }
 
-            $apiContext->setConfig(
-                array(
-                    'mode' => 'sandbox', // Chế độ sandbox cho thử nghiệm, live là thật
-                    'log.LogEnabled' => true,
-                    'log.FileName' => '../PayPal.log',
-                    'log.LogLevel' => 'DEBUG', // Cấp độ log: DEBUG, INFO, WARN hoặc ERROR
-                    'cache.enabled' => true,
-                )
-            );
+    // Bắt đầu giao dịch
+    $conn->begin_transaction();
 
-            // Tính toán tổng giá tiền và chuyển đổi sang USD
-            $totalPriceVND = $numOfPeople * $tourPrice; // Tổng giá tiền bằng VNĐ
-            $totalPriceUSD = convertVNDToUSD($totalPriceVND); // Chuyển đổi sang USD
+    try {
+        // 1. Lưu thông tin vào bảng bookings
+        $queryBooking = "
+            INSERT INTO bookings (TOURID, USERID, STARTDATE, NUMOFPEOPLE, TOTALPRICE, STATUS, BOOKINGDATE)
+            VALUES (?, ?, ?, ?, ?, ?, ?)";
+        $stmtBooking = $conn->prepare($queryBooking);
+        $stmtBooking->bind_param("iisdsis", $tourId, $userId, $startDate, $peopleCount, $totalPrice, $status, $bookingDate);
+        $stmtBooking->execute();
 
-            // Thiết lập thông tin thanh toán
-            $payer = new Payer();
-            $payer->setPaymentMethod('paypal');
+        // 2. Lưu thông tin vào bảng payments
+        $queryPayment = "
+            INSERT INTO payments (TOURID, USERID, STARTDATE, PAYMENT_DATE, AMOUNT, PAYMENT_METHOD) 
+            VALUES (?, ?, ?, ?, ?, ?)";
+        $stmtPayment = $conn->prepare($queryPayment);
+        $paymentDate = date('Y-m-d H:i:s'); // Ngày thanh toán hiện tại
+        $stmtPayment->bind_param("iissds", $tourId, $userId, $startDate, $paymentDate, $totalPrice, $paymentMethod);
+        $stmtPayment->execute();
 
-            $amount = new Amount();
-            $amount->setCurrency('USD') // Thay đổi theo loại tiền tệ bạn muốn
-                ->setTotal(number_format($totalPriceUSD, 2, '.', '')); // Tổng số tiền thanh toán
-
-            $transaction = new Transaction();
-            $transaction->setAmount($amount)
-                ->setDescription('Thanh toán đặt tour');
-
-            // URL quay về sau khi thanh toán thành công hoặc hủy
-            $redirectUrls = new RedirectUrls();
-            $redirectUrls->setReturnUrl("http://yourdomain.com/success.php")
-                ->setCancelUrl("http://yourdomain.com/cancel.php");
-
-            $payment = new Payment();
-            $payment->setIntent('sale')
-                ->setPayer($payer)
-                ->setTransactions(array($transaction))
-                ->setRedirectUrls($redirectUrls);
-
-            try {
-                $payment->create($apiContext);
-                header("Location: " . $payment->getApprovalLink());
-                exit;
-            } catch (PayPal\Exception\PayPalConnectionException $ex) {
-                echo $ex->getData();
-                die();
-            }
-        } else {
-            // Xử lý thanh toán tại quầy
-            $bookingDate = date("Y-m-d H:i:s"); // Ngày và giờ hiện tại
-            $totalPrice = $numOfPeople * $tourPrice; // Tính tổng giá tiền dựa trên số người đặt
-            $status = '2'; // Trạng thái ban đầu là 'Chờ xác nhận'
-
-            // Thêm thông tin đặt tour vào bảng bookings
-            $sqlInsertBooking = "INSERT INTO bookings (TOURID, USERID, BOOKINGDATE, NUMOFPEOPLE, TOTALPRICE, STATUS, STARTDATE)
-                                VALUES (?, ?, ?, ?, ?, ?, ?)";
-            $stmt = $conn->prepare($sqlInsertBooking);
-            $stmt->bind_param("iissdss", $tourID, $userID, $bookingDate, $numOfPeople, $totalPrice, $status, $startDate);
-
-            // Thực thi truy vấn
-            if ($stmt->execute()) {
-                // Thêm thông tin thanh toán vào bảng payments
-                $sqlInsertPayment = "INSERT INTO payments (TOURID, USERID, STARTDATE, PAYMENT_DATE, AMOUNT, PAYMENT_METHOD) 
-                                    VALUES (?, ?, ?, ?, ?, ?)";
-                $paymentDate = date("Y-m-d H:i:s");
-                $stmt = $conn->prepare($sqlInsertPayment);
-                $stmt->bind_param("iissss", $tourID, $userID, $startDate, $paymentDate, $totalPrice, $paymentMethod);
-
-                // Kiểm tra nếu lưu thông tin thanh toán thành công
-                if ($stmt->execute()) {
-                    echo "<script>alert('Đặt tour và thanh toán thành công! Vui lòng chờ xác nhận từ quản lý.'); window.location.href='booking_success.php';</script>";
-                } else {
-                    echo "<script>alert('Lỗi: Không thể hoàn tất thanh toán. Vui lòng thử lại sau.');</script>";
-                }
-            } else {
-                echo "<script>alert('Lỗi: Không thể đặt tour. Vui lòng thử lại sau.');</script>";
-            }
+        // 3. Cập nhật lại số ghế còn lại chỉ khi trạng thái là 1 (đặt thành công)
+        if ($status == "1") {
+            $queryUpdateSeats = "
+                UPDATE tour 
+                SET MAXSLOTS = MAXSLOTS - ?
+                WHERE TOURID = ?";
+            $stmtUpdateSeats = $conn->prepare($queryUpdateSeats);
+            $stmtUpdateSeats->bind_param("ii", $peopleCount, $tourId);
+            $stmtUpdateSeats->execute();
         }
-    } else {
-        // Thông báo hết chỗ
-        echo "<script>alert('Xin lỗi, tour này đã hết chỗ!'); window.location.href='tour.php';</script>";
+
+        // 4. Hoàn tất giao dịch
+        $conn->commit();
+
+        // Điều hướng dựa trên phương thức thanh toán
+        if ($paymentMethod === "PayPal") {
+            echo "<script>
+            // alert('Vui lòng tiếp tục thanh toán qua PayPal.');
+            window.location.href = 'paypal_payment.php?tourid=$tourId&userid=$userId&startdate=$startDate';
+            </script>";
+        } else {
+            echo "<script>
+            alert('Đặt tour thành công! Hãy thanh toán tại quầy để hoàn tất.');
+            window.location.href = 'booking_history.php';
+            </script>";
+        }
+    } catch (Exception $e) {
+        // Nếu có lỗi, hoàn tác giao dịch
+        $conn->rollback();
+        echo "<script>
+        alert('Đã xảy ra lỗi khi xử lý dữ liệu. Vui lòng thử lại!');
+        window.location.href = 'booking.php?tourid=$tourId';
+        </script>";
     }
+} else {
+    echo "<script>
+    alert('Yêu cầu không hợp lệ!');
+    window.location.href = 'index.php';
+    </script>";
 }

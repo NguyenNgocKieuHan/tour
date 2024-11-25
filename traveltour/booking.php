@@ -6,11 +6,9 @@ if (!isset($_SESSION['userid'])) {
     echo "<script>
     alert('Bạn chưa đăng nhập!');
     window.location.href = 'login.php';
-</script>";
+    </script>";
     exit();
 }
-
-// $activate = "booking";
 
 include('includes/header.php');
 include('includes/db.php');
@@ -34,8 +32,12 @@ if (isset($_GET['tourid'])) {
 
     $tourName = htmlspecialchars($tourData['TOURNAME']);
     $price = htmlspecialchars($tourData['PRICE']);
+
+    // Convert price to USD
+    $exchangeRate = 23000; // Giả định: 1 USD = 23,000 VND
+    $priceInUSD = $price / $exchangeRate;
 } else {
-    echo "<p>Không tìm thấy thông tin tour !!</p>";
+    echo "<p>Không tìm thấy thông tin tour!</p>";
     exit;
 }
 
@@ -53,251 +55,123 @@ if (!$userData) {
     exit;
 }
 
-$fullName = $userData['USNAME'];
-$email = $userData['USEMAIL'];
-$phone = $userData['USSDT'];
+$fullName = htmlspecialchars($userData['USNAME']);
+$email = htmlspecialchars($userData['USEMAIL']);
+$phone = htmlspecialchars($userData['USSDT']);
 ?>
-<!-- Header Start -->
-<div class="container-fluid bg-breadcrumb">
-    <div class="container text-center py-5" style="max-width: 900px;">
-        <h3 class="text-white display-3 mb-4">Đặt tour trực tuyến</h3>
-        <ol class="breadcrumb justify-content-center mb-0">
-            <li class="breadcrumb-item"><a href="index.php">Trang chủ</a></li>
-            <li class="breadcrumb-item"><a href="#">Trang</a></li>
-            <li class="breadcrumb-item active text-white">Đặt tour trực tuyến</li>
-        </ol>
-    </div>
-</div>
-<!-- Header End -->
-
 <!-- Tour Booking Start -->
+<script
+    src="https://www.paypal.com/sdk/js?client-id=AWHNWa7HF-1xlxrHPlD7RDudvOmxkJ5nBzUxEFiqEyHaLN-L5Zmdl8nF9YzRojlPXG4ipg0r5hub4AGB&currency=USD&components=buttons&enable-funding=venmo,paylater,card"
+    data-sdk-integration-source="developer-studio"></script>
 <div class="container-fluid booking py-5">
     <div class="container py-5">
-        <div class="row g-5 align-items-center">
-            <div class="col-lg-6">
-                <h5 class="section-booking-title pe-3">Đặt tour</h5>
-                <h1 class="text-white mb-4">Đặt tour trực tuyến </h1>
-                <p class="text-white mb-4">Đặt tour trực tuyến dễ dàng và nhanh chóng. Hãy chọn tour mà bạn muốn tham
-                    gia và cung cấp thông tin cần thiết để hoàn tất đặt chỗ.</p>
-                <p class="text-white mb-4">Hãy chọn tour mà bạn muốn tham gia từ danh sách các tour hiện có. Chúng tôi
-                    cung cấp nhiều lựa chọn tour phong phú với điểm đến đa dạng. Mỗi tour đều có chương trình đặc biệt
-                    dành riêng cho du khách, bao gồm lịch trình chi tiết, dịch vụ chất lượng và giá cả hợp lý.</p>
-            </div>
-            <div class="col-lg-6">
-                <h1 class="text-white mb-3">Đặt tour du lịch</h1>
-                <form action="process_booking.php" method="post">
+        <div class="row g-5 align-items-start">
+            <!-- Form Container -->
+            <form action="process_booking.php" method="post" class="d-flex">
+                <input type="hidden" name="tourid" value="<?php echo $tourId; ?>">
+                <!-- Left Column (Tour and User Info) -->
+                <div class="col-lg-7">
+                    <h1 class="text-white mb-4">Đặt tour trực tuyến</h1>
                     <div class="row g-3">
-                        <input type="hidden" name="tourid" value="<?php echo $tourId; ?>">
+                        <!-- Tour Name -->
                         <div class="col-md-6">
                             <div class="form-floating">
-                                <input type="text" class="form-control bg-white border-0" id="name" name="name"
-                                    value="<?php echo $fullName; ?>" readonly>
-                                <label for="name">Họ và tên</label>
+                                <input type="text" class="form-control bg-white" value="<?php echo $tourName; ?>"
+                                    readonly>
+                                <label for="tourname">Tên Tour</label>
                             </div>
                         </div>
+                        <!-- Email -->
                         <div class="col-md-6">
                             <div class="form-floating">
-                                <input type="email" class="form-control bg-white border-0" id="email" name="email"
+                                <input type="email" class="form-control bg-white" name="email"
                                     value="<?php echo $email; ?>" readonly>
                                 <label for="email">Email</label>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-floating date" id="date3" data-target-input="nearest">
-                                <input type="date" class="form-control bg-white border-0" name="startdate" id="datetime"
-                                    placeholder="Chọn Ngày" data-target="#date3" data-toggle="datetimepicker"
-                                    min="<?php echo date('Y-m-d'); ?>" />
-                                <label for="datetime">Ngày khởi hành</label>
-                            </div>
-                        </div>
+                        <!-- Price (VND) -->
                         <div class="col-md-6">
                             <div class="form-floating">
-                                <input type="text" class="form-control bg-white border-0" id="tourname" name="tourname"
-                                    value="<?php echo $tourName; ?>" placeholder="Tên Tour" readonly>
-                                <label for="tourname">Tên Tour</label>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-floating">
-                                <input type="number" class="form-control bg-white border-0" id="people_count"
-                                    name="people_count" min="1" max="30" placeholder="Số lượng người" required>
-                                <label for="people_count">Số người</label>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-floating">
-                                <input type="text" class="form-control bg-light border-0" id="price"
-                                    placeholder="Giá vé" name="price"
+                                <input type="text" class="form-control bg-white"
                                     value="<?php echo number_format($price, 0, ',', '.') . ' VND'; ?>" readonly>
-                                <label for="CategoriesSelect">Giá vé cho 1 người</label>
+                                <label for="price_vnd">Giá vé 1 người (VND)</label>
                             </div>
                         </div>
+                        <!-- Price (USD) -->
                         <div class="col-md-6">
                             <div class="form-floating">
-                                <select class="form-select bg-white border-0" id="payment_method" name="payment_method"
-                                    required>
-                                    <option value="">Chọn phương thức thanh toán</option>
-                                    <option value="Cash">Thanh toán tại quầy</option>
-                                    <option value="PayPal">PayPal</option>
-                                    <!-- <option value="bank_transfer">Chuyển khoản ngân hàng</option> -->
-                                </select>
-                                <label for="payment_method">Phương thức thanh toán</label>
+                                <input type="text" class="form-control bg-white"
+                                    value="$<?php echo number_format($priceInUSD, 2, '.', '') . ' USD'; ?>" readonly>
+                                <label for="price_usd">Giá vé 1 người(USD)</label>
                             </div>
                         </div>
+                        <!-- User Name -->
                         <div class="col-md-6">
                             <div class="form-floating">
-                                <input type="text" class="form-control bg-white border-0" id="phone" name="phone"
+                                <input type="text" class="form-control bg-white" name="name"
+                                    value="<?php echo $fullName; ?>" readonly>
+                                <label for="name">Họ và tên</label>
+                            </div>
+                        </div>
+                        <!-- Phone -->
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input type="text" class="form-control bg-white" name="phone"
                                     value="<?php echo $phone; ?>" readonly>
                                 <label for="phone">Số điện thoại</label>
                             </div>
                         </div>
-
-                        <div class="col-12">
-                            <button class="btn btn-primary text-white w-100 py-3" type="submit">Đặt ngay</button>
+                        <!-- Start Date -->
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input type="date" class="form-control bg-white" name="startdate"
+                                    min="<?php echo date('Y-m-d'); ?>" required>
+                                <label for="startdate">Ngày khởi hành</label>
+                            </div>
+                        </div>
+                        <!-- Number of People -->
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input type="number" class="form-control bg-white" name="people_count" min="1" max="30"
+                                    required>
+                                <label for="people_count">Số người</label>
+                            </div>
                         </div>
                     </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-<!-- Tour Booking End -->
+                </div>
 
-<!-- Subscribe Start -->
-<div class="container-fluid subscribe py-5">
-    <div class="container text-center py-5">
-        <div class="mx-auto text-center" style="max-width: 900px;">
-            <h5 class="subscribe-title px-3">Subscribe</h5>
-            <h1 class="text-white mb-4">Our Newsletter</h1>
-            <p class="text-white mb-5">Lorem ipsum dolor sit amet consectetur adipisicing elit. Laborum tempore nam,
-                architecto doloremque velit explicabo? Voluptate sunt eveniet fuga eligendi! Expedita laudantium fugiat
-                corrupti eum cum repellat a laborum quasi.
-            </p>
-            <div class="position-relative mx-auto">
-                <input class="form-control border-primary rounded-pill w-100 py-3 ps-4 pe-5" type="text"
-                    placeholder="Your email">
-                <button type="button"
-                    class="btn btn-primary rounded-pill position-absolute top-0 end-0 py-2 px-4 mt-2 me-2">Subscribe</button>
-            </div>
-        </div>
-    </div>
-</div>
-<!-- Subscribe End -->
-
-<!-- Footer Start -->
-<div class="container-fluid footer py-5">
-    <div class="container py-5">
-        <div class="row g-5">
-            <div class="col-md-6 col-lg-6 col-xl-3">
-                <div class="footer-item d-flex flex-column">
-                    <h4 class="mb-4 text-white">Get In Touch</h4>
-                    <a href=""><i class="fas fa-home me-2"></i> 123 Street, New York, USA</a>
-                    <a href=""><i class="fas fa-envelope me-2"></i> info@example.com</a>
-                    <a href=""><i class="fas fa-phone me-2"></i> +012 345 67890</a>
-                    <a href="" class="mb-3"><i class="fas fa-print me-2"></i> +012 345 67890</a>
-                    <div class="d-flex align-items-center">
-                        <i class="fas fa-share fa-2x text-white me-2"></i>
-                        <a class="btn-square btn btn-primary rounded-circle mx-1" href=""><i
-                                class="fab fa-facebook-f"></i></a>
-                        <a class="btn-square btn btn-primary rounded-circle mx-1" href=""><i
-                                class="fab fa-twitter"></i></a>
-                        <a class="btn-square btn btn-primary rounded-circle mx-1" href=""><i
-                                class="fab fa-instagram"></i></a>
-                        <a class="btn-square btn btn-primary rounded-circle mx-1" href=""><i
-                                class="fab fa-linkedin-in"></i></a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-6 col-xl-3">
-                <div class="footer-item d-flex flex-column">
-                    <h4 class="mb-4 text-white">Company</h4>
-                    <a href=""><i class="fas fa-angle-right me-2"></i> About</a>
-                    <a href=""><i class="fas fa-angle-right me-2"></i> Careers</a>
-                    <a href=""><i class="fas fa-angle-right me-2"></i> Blog</a>
-                    <a href=""><i class="fas fa-angle-right me-2"></i> Press</a>
-                    <a href=""><i class="fas fa-angle-right me-2"></i> Gift Cards</a>
-                    <a href=""><i class="fas fa-angle-right me-2"></i> Magazine</a>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-6 col-xl-3">
-                <div class="footer-item d-flex flex-column">
-                    <h4 class="mb-4 text-white">Support</h4>
-                    <a href=""><i class="fas fa-angle-right me-2"></i> Contact</a>
-                    <a href=""><i class="fas fa-angle-right me-2"></i> Legal Notice</a>
-                    <a href=""><i class="fas fa-angle-right me-2"></i> Privacy Policy</a>
-                    <a href=""><i class="fas fa-angle-right me-2"></i> Terms and Conditions</a>
-                    <a href=""><i class="fas fa-angle-right me-2"></i> Sitemap</a>
-                    <a href=""><i class="fas fa-angle-right me-2"></i> Cookie policy</a>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-6 col-xl-3">
-                <div class="footer-item">
-                    <div class="row gy-3 gx-2 mb-4">
-                        <div class="col-xl-6">
-                            <form>
-                                <div class="form-floating">
-                                    <select class="form-select bg-dark border" id="select1">
-                                        <option value="1">Arabic</option>
-                                        <option value="2">German</option>
-                                        <option value="3">Greek</option>
-                                        <option value="3">New York</option>
-                                    </select>
-                                    <label for="select1">English</label>
-                                </div>
-                            </form>
+                <!-- Right Column (Payment Methods) -->
+                <div class="col-lg-6 mt-4">
+                    <div class="col-12">
+                        <!-- <h4 class="text-white mb-4">Phương thức thanh toán</h4> -->
+                        <label class="text-white mb-4" for="people_count">Phương thức thanh toán</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="payment_method" id="pay_at_counter"
+                                value="Thanh toán tại quầy" required>
+                            <label class="text-white mb-4" for="pay_at_counter">Thanh toán tại
+                                quầy</label>
                         </div>
-                        <div class="col-xl-6">
-                            <form>
-                                <div class="form-floating">
-                                    <select class="form-select bg-dark border" id="select1">
-                                        <option value="1">USD</option>
-                                        <option value="2">EUR</option>
-                                        <option value="3">INR</option>
-                                        <option value="3">GBP</option>
-                                    </select>
-                                    <label for="select1">$</label>
-                                </div>
-                            </form>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="payment_method" id="paypal"
+                                value="PayPal" required>
+                            <label class="text-white mb-4" for="paypal">
+                                Thanh toán qua Paypal </label>
                         </div>
+                        <div id="paypal-button-container"></div>
+
+
                     </div>
-                    <h4 class="text-white mb-3">Payments</h4>
-                    <div class="footer-bank-card">
-                        <a href="#" class="text-white me-2"><i class="fab fa-cc-amex fa-2x"></i></a>
-                        <a href="#" class="text-white me-2"><i class="fab fa-cc-visa fa-2x"></i></a>
-                        <a href="#" class="text-white me-2"><i class="fas fa-credit-card fa-2x"></i></a>
-                        <a href="#" class="text-white me-2"><i class="fab fa-cc-mastercard fa-2x"></i></a>
-                        <a href="#" class="text-white me-2"><i class="fab fa-cc-paypal fa-2x"></i></a>
-                        <a href="#" class="text-white"><i class="fab fa-cc-discover fa-2x"></i></a>
+                    <div class="col-12 mt-4">
+                        <button class="btn btn-primary w-100 py-3" type="submit">Đặt ngay</button>
                     </div>
                 </div>
-            </div>
+            </form>
         </div>
     </div>
 </div>
-<!-- Footer End -->
 
-<!-- Copyright Start -->
-<div class="container-fluid copyright text-body py-4">
-    <div class="container">
-        <div class="row g-4 align-items-center">
-            <div class="col-md-6 text-center text-md-end mb-md-0">
-                <i class="fas fa-copyright me-2"></i><a class="text-white" href="#">Your Site Name</a>, All right
-                reserved.
-            </div>
-            <div class="col-md-6 text-center text-md-start">
-                <!--/*** This template is free as long as you keep the below author’s credit link/attribution link/backlink. ***/-->
-                <!--/*** If you'd like to use the template without the below author’s credit link/attribution link/backlink, ***/-->
-                <!--/*** you can purchase the Credit Removal License from "https://htmlcodex.com/credit-removal". ***/-->
-                Designed By <a class="text-white" href="https://htmlcodex.com">HTML Codex</a>
-            </div>
-        </div>
-    </div>
-</div>
-<!-- Copyright End -->
-
-<!-- Back to Top -->
-<!-- <a href="#" class="btn btn-primary btn-primary-outline-0 btn-md-square back-to-top"><i class="fa fa-arrow-up"></i></a> -->
-
+<!-- Footer -->
+<?php include('includes/footer.php'); ?>
 
 <!-- JavaScript Libraries -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
@@ -307,9 +181,35 @@ $phone = $userData['USSDT'];
 <script src="lib/owlcarousel/owl.carousel.min.js"></script>
 <script src="lib/lightbox/js/lightbox.min.js"></script>
 
-
 <!-- Template Javascript -->
 <script src="js/main.js"></script>
+
+<!-- ---------------------- -->
+<script>
+    const priceInUSD = "<?php echo number_format($priceInUSD, 2, '.', ''); ?>";
+
+    paypal.Buttons({
+        createOrder: (data, actions) => {
+            return actions.order.create({
+                purchase_units: [{
+                    amount: {
+                        value: priceInUSD
+                    }
+                }]
+            });
+        },
+        onApprove: (data, actions) => {
+            return actions.order.capture().then(details => {
+                alert('Thanh toán thành công! Cảm ơn bạn đã đặt tour.');
+                window.location.href =
+                    `booking_success.php?tourid=<?php echo $tourId; ?>`;
+            });
+        },
+        onError: (err) => {
+            alert('Đã xảy ra lỗi khi thanh toán: ' + err);
+        }
+    }).render('#paypal-button-container');
+</script>
 </body>
 
 </html>
